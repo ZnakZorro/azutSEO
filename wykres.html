@@ -1,0 +1,142 @@
+<html>
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>zutSEO wykres</title>
+	<link href="bootstrap-combined.min.css" rel="stylesheet">
+<style>
+.btn {margin:3px;}
+</style>	
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+	
+	
+var script=document.createElement('SCRIPT');
+script.type='text/javascript';
+script.src='http://zszczech.zut.edu.pl/SEO/zapisy/json.php?callback=fooseo&ile=0';
+document.getElementsByTagName('head')[0].appendChild(script);	
+
+var uczelnia = window.localStorage.getItem('___uczelnia') || 'wi_zut_edu_pl';		
+
+
+var dane=[['Time', 'google', 'links','q:szczecin studia']];
+	
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+	  
+	  
+       function drawChart() {
+	   //console.log(dane);
+        var data = google.visualization.arrayToDataTable(dane);
+        var options = {
+          title: uczelnia,
+		  vAxis:{maxValue:30,minValue:0}
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+
+	  
+	  
+	  
+	function fooseo(res){
+		var menuarr=[];
+		//console.log(res);
+		//$('#content').innerHTML='';
+		for (var v in res){
+			menuarr[v]=1;
+			if (v==uczelnia) opisz(v,res[v]);
+		}
+		
+		// dopisz do menu
+		for (var m in menuarr){
+			//console.log(m);
+			var title=m.capitalize();
+			title=title.replace(/_/g,'.');
+			var menu = document.getElementById('menu');
+			var bat  = document.createElement("BUTTON");
+			bat.className = 'btn btn-primary';
+			bat.setAttribute('onClick','ustaw("'+m+'")');
+			bat.innerHTML=title;
+			//el.
+			menu.appendChild(bat);
+		}
+	}
+
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+	
+	function opisz(uczelnia,obj){
+		//console.log(uczelnia);
+		var nr=dane.lenth;
+		//console.log(obj);
+		for (var o in obj){	
+		//console.log(o);
+		//console.log(obj[o]);
+		//faktor	fsearch	fsite	fszczecin_studia	ile	search	site	szczecin_studia
+		var arr=[o,obj[o].fsearch,obj[o].fsite,obj[o].fszczecin_studia];
+		dane.push(arr);
+		nr++;
+		}
+
+	}	
+  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	
+	  
+	  
+	  
+	  
+	  
+	  
+var $=function (id) {
+	var prefix=id[0];
+	var iid=id.slice(1,id.length);
+	switch (prefix){
+		case '#':	return document.getElementById(iid);   			break;
+		case '.':	return document.getElementsByClassName(iid);  	break;
+		default:	return document.getElementsByTagName(id); 
+		}	
+	}	  
+	  
+  
+function ustaw(co){
+	window.localStorage.setItem('___uczelnia',co);
+	window.location.reload();
+}	  
+	  
+function koniec(){
+	try  {navigator.app.exitApp();}
+	catch(err) {
+	  //window.scrollTo(0,0);
+	  }
+}	  
+	  
+    </script>
+  </head>
+  <body>
+<div id="menu">  
+	<button class="btn btn-inverse" onClick="window.open('index.html')">Dane</button> 
+	<button class="btn btn-warning" onClick="koniec()">Koniec</button>   
+<!--
+<button class="btn btn-info" onClick="ustaw('zut_edu_pl')">ZUT.edu.pl</button>
+<button class="btn btn-info" onClick="ustaw('wi_zut_edu_pl')">WI.edu.pl</button>
+<button class="btn btn-info" onClick="ustaw('we_zut_edu_pl')">WE.edu.pl</button>
+<button class="btn btn-info" onClick="ustaw('wbia_zut_edu_pl')">WBIA.edu.pl</button>
+<button class="btn btn-info" onClick="ustaw('ekonomia_zut_edu_pl')">Ekonomia.edu.pl</button>
+-->
+</div>
+  
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>
