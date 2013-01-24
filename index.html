@@ -5,13 +5,17 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>zutSEO 2</title>
 	<link href="bootstrap-combined.min.css" rel="stylesheet">
-<style>
-body {}
-.span4 {padding:4px; margin:4px; border:1px solid #ddd; border-radius:4px; box-shadow: 3px 3px 4px 0px #aaa;}
-p.title {font-weight:bold; margin:10px 0 0 0;}
-</style>
- <script type="text/javascript" src="https://www.google.com/jsapi"></script>	
-<script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script> 	
+	<style>
+		body {}
+		.span4 {padding:4px; margin:4px; border:1px solid #ddd; border-radius:4px; box-shadow: 3px 3px 4px 0px #aaa;}
+		p.title {font-weight:bold; margin:10px 0 0 0;}
+		div.przerwa {float:left; width:100%; }
+		small {color:#888;}
+	</style>
+
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>	
+	<script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script> 	
+	<script type="text/javascript" charset="utf-8" src="seo.js"></script>
 
 <script>
 google.load('visualization', '1', {packages: ['corechart']});
@@ -85,26 +89,28 @@ google.load('visualization', '1', {packages: ['corechart']});
 	$('#content').innerHTML="<h3>Czekamy na zdalne dane</h3>";
 var script=document.createElement('SCRIPT');
 script.type='text/javascript';
-script.src='http://zszczech.zut.edu.pl/SEO/zapisy/json.php?callback=fooseo&ile=4';
+script.src='http://zszczech.zut.edu.pl/SEO/zapisy/json.php?callback=fooseo&ile=0';
 document.getElementsByTagName('head')[0].appendChild(script);
 }
 
 	function fooseo(res){
-		//console.log(res);
 		$('#content').innerHTML='';
-		for (var v in res){
-			opisz(v,res[v]);
-		}
+		for (var v in res){	opisz(v,res[v],'search');}			$('#content').innerHTML+='<div class="przerwa"><hr /></div>';
+		for (var v in res){	opisz(v,res[v],'site');}			$('#content').innerHTML+='<div class="przerwa"><hr /></div>';
+		for (var v in res){	opisz(v,res[v],'szczecin_studia');}	$('#content').innerHTML+='<div class="przerwa"><hr /></div>';
 	}
 
-	function opisz(uczelnia,obj){
+	function opisz(uczelnia,obj,pole){
 		//console.log(obj);
 		var i=0;
-		var html='<p class="title">'+uczelnia+'</p>';
+		var html='<p class="title">'+nazwa(uczelnia)+'<br /><small>'+pole+'</small></p>';
 		for (var o in obj){	
-		i++;
-				html+=o+'='+obj[o].fszczecin_studia+'<br />';	//faktor	fsearch	fsite	fszczecin_studia	ile	search	site	szczecin_studia
+			i++;
+			//faktor	fsearch	fsite	fszczecin_studia	ile	search	site	szczecin_studia
+			//html+=o+'='+obj[o].fszczecin_studia+'<br />';	
+			html+=o+'= <b>'+obj[o][pole].forma()+'</b><br />';	
 		}
+		
 		var el = document.createElement('DIV');
 		el.className='span2';
 		el.innerHTML=html;
@@ -125,7 +131,7 @@ document.getElementsByTagName('head')[0].appendChild(script);
           ['2006',  660,       1120],
           ['2007',  1030,      540]
         ]);
-console.log(data);
+//console.log(data);
         var options = {
           title: 'Company Performance'
         };
@@ -139,65 +145,22 @@ console.log(data);
 
 
 
-var $=function (id) {
-	var prefix=id[0];
-	var iid=id.slice(1,id.length);
-	switch (prefix){
-		case '#':	return document.getElementById(iid);   			break;
-		case '.':	return document.getElementsByClassName(iid);  	break;
-		default:	return document.getElementsByTagName(id); 
-		}	
-	}
-	
-function koniec(){
-	try  {navigator.app.exitApp();}
-	catch(err) {
-	  //window.scrollTo(0,0);
-	  }
-}
-	
-function loadURL(url){
-	try  { navigator.app.loadUrl(url, { openExternal:true } );  }
-	catch(err) {
-	  window.location.href=url;
-	  }
-}
-
-
-
-
-
 </script>
-
 
 </head>
 
 <body onload="onLoad()">
 
+	<div id="menu">
+		<button class="btn"  onClick="window.open('wykres-uczelnie.html','_parent')">Wykres Uczelnie</button> 
+		<button class="btn"  onClick="window.open('wykres-dane.html','_parent')">Wykres Dane</button> 
+		<button class="btn btn-inverse" onClick="seo()">SEO</button> 
+		<button class="btn btn-warning" onClick="koniec()">Koniec</button> 
+	</div>
 
-
-<div class="container-fluid">
-	<div class="page" id="content">
-	</div >
-</div>
-
-<!--
-<div id="visualization" style="width: 600px; height: 400px; border:1px solid gray;background: wheat; clear:both;"></div>
-
-<div id="chart_div" style="width: 400px; height: 200px; border:1px solid gray;background: wheat;"></div>
--->
-
-<div id="menu">
-	<button class="btn btn-info" onClick="window.open('wykres.html')">Wykres</button> 
-	<button class="btn btn-info" onClick="seo()">SEO</button> 
-	<button class="btn btn-warning" onClick="koniec()">Koniec</button> 
-</div>
-
-
+	<div class="container-fluid">
+		<div class="page" id="content"></div >
+	</div>
 
 </body>
 </html>
-
-
-
-
