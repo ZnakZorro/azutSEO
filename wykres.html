@@ -31,10 +31,10 @@
 -->
 <div id="example4-visualization"></div>
 <button class="btn btn-inverse" onClick="window.open('index.html','_parent')">Dane</button> 
-
-<button class="btn btn-info" onclick="ustaw_canvas(640)">Mały</button>
-<button class="btn btn-info" onclick="ustaw_canvas(800)">Średni</button>
-<button class="btn btn-info" onclick="ustaw_canvas(1024)">Duży</button>
+<button class="btn btn-warning" onClick="koniec()">Koniec</button> 
+<button class="btn btn-primary" onclick="ustaw_canvas(640)">Mały</button>
+<button class="btn btn-primary" onclick="ustaw_canvas(800)">Średni</button>
+<button class="btn btn-primary" onclick="ustaw_canvas(1024)">Duży</button>
 
 <script type="text/javascript">
 
@@ -72,7 +72,7 @@ var	canvas_height = 400;
     }
 	function onMenuKeyDown() {
 		document.getElementById("menu").style.display="block";
-		menu();
+		
     }	
 	
 
@@ -134,6 +134,7 @@ var	canvas_height = 400;
 
 	function menu(){
 		var menu = document.getElementById('menu');
+		// klawisze faktorow
 		for (var m in faktory){
 			if (faktory[m]=='ile') continue;
 			if (faktory[m]=='faktor') continue;
@@ -147,10 +148,20 @@ var	canvas_height = 400;
 			bat.innerHTML=title;
 			menu.appendChild(bat);
 		}
+		// zlamanie strony
 			var bat  = document.createElement("DIV");
 			bat.className = 'break';
 			menu.appendChild(bat);
-		
+			
+		// klawisz all
+			var bat  = document.createElement("BUTTON");
+			bat.className = 'btn btn-warning';
+			bat.setAttribute('onClick','zamien_uczelnie()');
+			bat.innerHTML='no';
+			bat.id='zamien_uczelnie';
+			menu.appendChild(bat);
+			
+		// klawisze uczelni
 		for (var m in uczelnie){
 			if (uczelnie[m]=='Time') continue;
 			var title=nazwa(uczelnie[m]);
@@ -173,7 +184,6 @@ function ustawKlasy(){
 		if (uczelnie.indexOf(id)>0) {
 			$('#'+id).className='btn btn-inverse';
 			} else {
-			console.log('btn');
 				$('#'+id).className='btn';
 			}
 	}
@@ -185,30 +195,44 @@ function ustaw_uczelnie(co){
 		} else {
 		uczelnie.push(co); 
 	}
-	opisz(resourse,daty,uczelnie)
-	drawExample4();
-	ustawKlasy();
+	redraw(resourse,daty,uczelnie);
 }	  
 	
-	
+function zamien_uczelnie(){
+	var znak=$('#zamien_uczelnie').innerText;
+	if (znak=='no'){
+		uczelnie.length=0;
+		uczelnie.push('Time','zut_edu_pl');
+		$('#zamien_uczelnie').innerText='all';
+		$('#zamien_uczelnie').className=' btn btn-info';
+	} else {
+		for (var m in uczelnie_ram){
+			uczelnie.push(uczelnie_ram[m]);
+		}
+		$('#zamien_uczelnie').innerText='no';
+		$('#zamien_uczelnie').className=' btn btn-primary';	
+	}
+	redraw(resourse,daty,uczelnie);
+}	
 	
 function ustaw_faktor(co){
 	ffaktor=co;
 	window.localStorage.setItem('___faktor',co);
-	opisz(resourse,daty,uczelnie)
-	drawExample4();
+	redraw(resourse,daty,uczelnie);
 }	  
 
 
 function ustaw_canvas(width){
 	canvas_width=width;
     canvas_height=width/1.5;
-	
-	opisz(resourse,daty,uczelnie)
-	drawExample4();
+	redraw(resourse,daty,uczelnie);
 }	  
 
-
+function redraw(resourse,daty,uczelnie){
+	opisz(resourse,daty,uczelnie);
+	drawExample4();
+	ustawKlasy();
+	}
 
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -218,8 +242,9 @@ function drawExample4() {
 	width: canvas_width,
     height: canvas_height,
     //vAxis: {minValue:0, maxValue:1000},
+    vAxis: {minValue:0},
 	//chartArea:{left:10,top:20,width:"100%",height:"100%"},
-	chartArea:{left:'5%', top:'10%',width:'75%',height:'80%'},
+	chartArea:{left:'10%', top:'10%',width:'70%',height:'80%'},
     animation: {
       duration: 1000,
       easing: 'out'
