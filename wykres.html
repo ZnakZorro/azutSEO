@@ -50,6 +50,7 @@ var ffaktor = window.localStorage.getItem('___faktor') || 'search';
 	var dane=[];
 	var uczelnie=[];
 	var uczelnie_ram=[];
+	var uczelnie_nazwy=[];
 	var daty=[];
 	var faktory=[];
 	var resourse=null;
@@ -89,6 +90,7 @@ var	canvas_height = 400;
 		for (var v in res){
 			uczelnie.push(v);
 			uczelnie_ram.push(v);
+			uczelnie_nazwy.push(nazwa(v));
 		}
 		
 		for (var d in res[uczelnie[0]]){
@@ -134,6 +136,8 @@ var	canvas_height = 400;
 
 	function menu(){
 		var menu = document.getElementById('menu');
+		if (menu.innerText.length>10) return true;
+		
 		// klawisze faktorow
 		for (var m in faktory){
 			if (faktory[m]=='ile') continue;
@@ -146,6 +150,7 @@ var	canvas_height = 400;
 			bat.className = 'btn'+klasa;
 			bat.setAttribute('onClick','ustaw_faktor("'+faktory[m]+'")');
 			bat.innerHTML=title;
+			bat.id=faktory[m];
 			menu.appendChild(bat);
 		}
 		// zlamanie strony
@@ -175,6 +180,8 @@ var	canvas_height = 400;
 			bat.id=uczelnie[m];
 			menu.appendChild(bat);
 		}
+				
+
 	}
 
 function ustawKlasy(){
@@ -186,6 +193,15 @@ function ustawKlasy(){
 			} else {
 				$('#'+id).className='btn';
 			}
+	}
+	
+	for (var m in faktory){
+		var klasa='btn btn-info';
+		var id=faktory[m];
+		if (id=='ile' || id=='faktor') continue;
+		//console.log('id='+id+' ff='+ffaktor);
+		if (ffaktor==faktory[m]) klasa='btn btn-info active';
+		$('#'+id).className=klasa;
 	}
 }
 
@@ -253,8 +269,15 @@ function drawExample4() {
 
   var chart = new google.visualization.LineChart(document.getElementById('example4-visualization'));
 
-	if (dane[0][0] != 'Time') dane[0].unshift('Time');	  
-	//console.log(dane);
+	if (dane[0][0] != 'Time') dane[0].unshift('Time');
+	
+	/*
+	console.log("\n");
+	for (var u in dane[0]){
+		dane[0][u]=nazwa(dane[0][u]);
+		console.log(dane[0][u]);
+		}
+	*/
 	var data = google.visualization.arrayToDataTable(dane);
 	//console.log(data);
 
@@ -272,6 +295,8 @@ function drawExample4() {
 */
   var addButton = document.getElementById('example4-b1');
   var removeButton = document.getElementById('example4-b2');
+  
+  
   function drawChart() {
     // Disabling the buttons while the chart is drawing.
     //addButton.disabled = true;
@@ -284,6 +309,8 @@ function drawExample4() {
         });
     chart.draw(data, options);
   }
+  
+  
   function shuffleAndDrawChart() {
     for (var i = 0; i < data.getNumberOfRows(); ++i) {
       for (var j = 1; j < data.getNumberOfColumns(); ++j) {
