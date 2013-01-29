@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>zutSEO Wykres</title>
+	<link href="bootstrap-combined.min.css" rel="stylesheet">
+
+	<style>
+		body {background:#eee;}
+		.btn {margin:3px;}
+		.btn-primary.active {background-color: #036;}
+	</style>	
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script> 	
+	<script type="text/javascript" charset="utf-8" src="seo.js"></script>
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  
+<body onload="onLoad()">
+
+	<div id="menu">  </div>  
+
+<!--
+<form>
+  <input id="example4-b1" type="button" value="Add column and shuffle values"></input>
+  <input id="example4-b2" type="button" value="Remove column and shuffle values"></input>
+</form>
+-->
+<div id="example4-visualization"></div>
+<button class="btn btn-inverse" onClick="window.open('index.html','_parent')">Dane</button> 
+<button class="btn btn-warning" onClick="koniec()">Koniec</button> 
+<button class="btn btn-primary" onclick="ustaw_canvas(640)">Mały</button>
+<button class="btn btn-primary" onclick="ustaw_canvas(800)">Średni</button>
+<button class="btn btn-primary" onclick="ustaw_canvas(1024)">Duży</button>
+
+<script type="text/javascript">
+
+
+var script=document.createElement('SCRIPT');
+script.type='text/javascript';
+script.src='http://zszczech.zut.edu.pl/SEO/zapisy/json.php?callback=fooseo&ile=0';
+document.getElementsByTagName('head')[0].appendChild(script);	
+
+
+//var skala=1000;
+var ffaktor = window.localStorage.getItem('___faktor') || 'search';
+	var dane=[];
+	var uczelnie=[];
+	var uczelnie_ram=[];
+	var uczelnie_nazwy=[];
+	var daty=[];
+	var faktory=[];
+	var resourse=null;
+
+var	canvas_width = 640;
+var	canvas_height = 400;
+
+
+
+   function onLoad() {
+        document.addEventListener("deviceready", onDeviceReady, false);
+		try {if (device.uuid) {}	}
+		catch(err) {onDeviceReady();}
+    }
+
+
+    function onDeviceReady() {
+		document.addEventListener("menubutton", onMenuKeyDown, false);	
+		menu();
+    }
+	function onMenuKeyDown() {
+		document.getElementById("menu").style.display="block";
+		
+    }	
+	
+
+
+
+
+
+
+
+
+	
+	function fooseo(res){
+		resourse=res;
+		for (var v in res){
+			uczelnie.push(v);
+			uczelnie_ram.push(v);
+			uczelnie_nazwy.push(nazwa(v));
+		}
+		
+		for (var d in res[uczelnie[0]]){
+				daty.push(d);
+		}
+		opisz(res,daty,uczelnie);		
+	}
+
+
+
+	function opisz(res,daty,uczelnie){
+		var arr=[];
+		for (var r in res){
+			var obj=res[r];
+			arr[r]=[];
+			for (var d in obj){
+				var dat=obj[d];
+				arr[r][d]=dat;
+			}			
+		}
+		// szukaj jakie faktory dla menu
+		for (var f in arr[r][d]){faktory.push(f);}
+		dane.length=0;
+		//console.log('opisz uczelnie=');console.log(uczelnie);
+		dane.push(uczelnie);
+
+		for (var d in daty){
+			var data=daty[d];
+			var darr=[];
+			darr.push(data);
+			for (var u in uczelnie){
+				//console.log(uczelnie[u]);
+				if (uczelnie[u]!='Time') {
+					var uczelnia=uczelnie[u];
+					darr.push(arr[uczelnia][data][ffaktor]);
+				}
+			}
+			
+			dane.push(darr);
+		}
+	}	
+ 
+
+	function menu(){
+		var menu = document.getElementById('menu');
+		if (menu.innerText.length>10) return true;
+		
+		// klawisze faktorow
+		for (var m in faktory){
+			if (faktory[m]=='ile') continue;
+			if (faktory[m]=='faktor') continue;
+			var title=nazwa(faktory[m]);
+			var klasa=' btn-info';
+			if (title.indexOf('zut') >0) var klasa=' btn-primary';
+			if (ffaktor==faktory[m]) klasa+=' active';
+			var bat  = document.createElement("BUTTON");
+			bat.className = 'btn'+klasa;
+			bat.setAttribute('onClick','ustaw_faktor("'+faktory[m]+'")');
+			bat.innerHTML=title;
+			bat.id=faktory[m];
+			menu.appendChild(bat);
+		}
+		// zlamanie strony
+			var bat  = document.createElement("DIV");
+			bat.className = 'break';
+			menu.appendChild(bat);
+			
+		// klawisz all
+			var bat  = document.createElement("BUTTON");
+			bat.className = 'btn btn-warning';
+			bat.setAttribute('onClick','zamien_uczelnie()');
+			bat.innerHTML='no';
+			bat.id='zamien_uczelnie';
+			menu.appendChild(bat);
+			
+		// klawisze uczelni
+		for (var m in uczelnie){
+			if (uczelnie[m]=='Time') continue;
+			var title=nazwa(uczelnie[m]);
+					//var klasa='';
+					//if (uczelnie[m].indexOf('zut') >=0) var klasa=' btn-inverse';
+					//if (ffaktor==uczelnie[m]) klasa+=' active';
+			var bat  = document.createElement("BUTTON");
+			bat.className = 'btn btn-inverse';//btn btn-mini'+klasa;
+			bat.setAttribute('onClick','ustaw_uczelnie("'+uczelnie[m]+'")');
+			bat.innerHTML=title;
+			bat.id=uczelnie[m];
+			menu.appendChild(bat);
+		}
+				
+
+	}
+
+function ustawKlasy(){
+	for (var m in uczelnie_ram){
+		var id=uczelnie_ram[m];
+		if (id=='Time') continue;
+		if (uczelnie.indexOf(id)>0) {
+			$('#'+id).className='btn btn-inverse';
+			} else {
+				$('#'+id).className='btn';
+			}
+	}
+	
+	for (var m in faktory){
+		var klasa='btn btn-info';
+		var id=faktory[m];
+		if (id=='ile' || id=='faktor') continue;
+		//console.log('id='+id+' ff='+ffaktor);
+		if (ffaktor==faktory[m]) klasa='btn btn-info active';
+		$('#'+id).className=klasa;
+	}
+}
+
+function ustaw_uczelnie(co){
+	if (uczelnie.indexOf(co)>0 && uczelnie.length>2) {
+		uczelnie.splice(uczelnie.indexOf(co), 1);
+		} else {
+		uczelnie.push(co); 
+	}
+	redraw(resourse,daty,uczelnie);
+}	  
+	
+function zamien_uczelnie(){
+	var znak=$('#zamien_uczelnie').innerText;
+	if (znak=='no'){
+		uczelnie.length=0;
+		uczelnie.push('Time','zut_edu_pl');
+		$('#zamien_uczelnie').innerText='all';
+		$('#zamien_uczelnie').className=' btn btn-info';
+	} else {
+		for (var m in uczelnie_ram){
+			uczelnie.push(uczelnie_ram[m]);
+		}
+		$('#zamien_uczelnie').innerText='no';
+		$('#zamien_uczelnie').className=' btn btn-primary';	
+	}
+	redraw(resourse,daty,uczelnie);
+}	
+	
+function ustaw_faktor(co){
+	ffaktor=co;
+	window.localStorage.setItem('___faktor',co);
+	redraw(resourse,daty,uczelnie);
+}	  
+
+
+function ustaw_canvas(width){
+	canvas_width=width;
+    canvas_height=width/1.5;
+	redraw(resourse,daty,uczelnie);
+}	  
+
+function redraw(resourse,daty,uczelnie){
+	opisz(resourse,daty,uczelnie);
+	drawExample4();
+	ustawKlasy();
+	}
+
+//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+function drawExample4() {
+  var options = {
+    title: nazwa(ffaktor),
+	width: canvas_width,
+    height: canvas_height,
+    //vAxis: {minValue:0, maxValue:1000},
+    vAxis: {minValue:0},
+	//chartArea:{left:10,top:20,width:"100%",height:"100%"},
+	chartArea:{left:'10%', top:'10%',width:'70%',height:'80%'},
+    animation: {
+      duration: 1000,
+      easing: 'out'
+    }
+  };
+
+  var chart = new google.visualization.LineChart(document.getElementById('example4-visualization'));
+
+	if (dane[0][0] != 'Time') dane[0].unshift('Time');
+	
+	/*
+	console.log("\n");
+	for (var u in dane[0]){
+		dane[0][u]=nazwa(dane[0][u]);
+		console.log(dane[0][u]);
+		}
+	*/
+	var data = google.visualization.arrayToDataTable(dane);
+	//console.log(data);
+
+
+  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+/*  
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'x');
+  data.addColumn('number', 'Aa');
+  data.addColumn('number', 'Bb');
+  data.addColumn('number', 'Cc');
+  data.addRow(['2010', 123, 400, 600]);
+  data.addRow(['2011', 17, 200, 500]);
+  data.addRow(['2012', 170, 200, 50]);
+*/
+  var addButton = document.getElementById('example4-b1');
+  var removeButton = document.getElementById('example4-b2');
+  
+  
+  function drawChart() {
+    // Disabling the buttons while the chart is drawing.
+    //addButton.disabled = true;
+    //removeButton.disabled = true;
+    google.visualization.events.addListener(chart, 'ready',
+        function() {
+          // Enabling only relevant buttons.
+          //addButton.disabled = (data.getNumberOfColumns() - 1) >= chars.length;
+          //removeButton.disabled = (data.getNumberOfColumns() - 1) < 2;
+        });
+    chart.draw(data, options);
+  }
+  
+  
+  function shuffleAndDrawChart() {
+    for (var i = 0; i < data.getNumberOfRows(); ++i) {
+      for (var j = 1; j < data.getNumberOfColumns(); ++j) {
+        var num = Math.floor(Math.random() * Math.random() * Math.random() * Math.random() * 1000);
+        data.setValue(i, j, num);
+      }
+    }
+    drawChart();
+  }
+
+/*  
+  addButton.onclick = function() {
+    data.addColumn('number', chars[data.getNumberOfColumns() - 1]);
+    shuffleAndDrawChart();
+  }
+  
+  removeButton.onclick = function() {
+    data.removeColumn(data.getNumberOfColumns() - 1);
+    shuffleAndDrawChart();
+  }
+ */
+  drawChart();
+}
+//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+google.load('visualization', '1.1', {packages: ['corechart']});
+google.setOnLoadCallback(drawExample4);
+
+</script>
+
+</body>
+</html>
