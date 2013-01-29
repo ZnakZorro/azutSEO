@@ -11,6 +11,10 @@
 		p.title {font-weight:bold; margin:10px 0 0 0;}
 		div.przerwa {float:left; width:100%; }
 		small {color:#888;}
+		table {margin-top:10px;}
+		table,td {border:1px solid #ddd; padding:2px 6px;}
+		th {background:black; color:white;}
+		span.linijka {background:#369; color:#9bf; font-size:10px;}
 	</style>
 
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>	
@@ -18,55 +22,6 @@
 	<script type="text/javascript" charset="utf-8" src="seo.js"></script>
 
 <script>
-google.load('visualization', '1', {packages: ['corechart']});
-
-
-     
-	 function drawVisualization() {
-        // Create and populate the data table.
-		data=dane;
-	
-        var data = google.visualization.arrayToDataTable([
-          ['x', 'Cats', 'Blanket 1', 'Blanket 2'],
-          ['A',   1,       1,           0.5],
-          ['B',   2,       0.5,         1],
-          ['C',   4,       1,           0.5],
-          ['D',   8,       0.5,         1],
-          ['E',   7,       1,           0.5],
-          ['F',   7,       0.5,         1],
-          ['G',   8,       1,           0.5],
-          ['H',   4,       0.5,         1],
-          ['I',   2,       1,           0.5],
-          ['J',   3.5,     0.5,         1],
-          ['K',   3,       1,           0.5],
-          ['L',   3.5,     0.5,         1],
-          ['M',   1,       1,           0.5],
-          ['N',   1,       0.5,         1]
-        ]);
-    
-        // Create and draw the visualization.
-        new google.visualization.LineChart(document.getElementById('visualization')).
-            draw(data, {curveType: "function",
-                        width: 600, height: 400,
-                        vAxis: {maxValue: 10}}
-                );
-      }
-	 //google.setOnLoadCallback(drawVisualization);
-	
-//ggggggggggggggggggggggggg	  
-
-
-
-
-
-
-
-
-
-
-
-
-
 
    function onLoad() {
         document.addEventListener("deviceready", onDeviceReady, false);
@@ -93,13 +48,91 @@ script.src='http://zszczech.zut.edu.pl/SEO/zapisy/json.php?callback=fooseo&ile=0
 document.getElementsByTagName('head')[0].appendChild(script);
 }
 
+var srednia=[];
+
 	function fooseo(res){
+	oblicz_srednia(res);
+	//return;
 		$('#content').innerHTML='';
 		for (var v in res){	opisz(v,res[v],'search');}			$('#content').innerHTML+='<div class="przerwa"><hr /></div>';
 		for (var v in res){	opisz(v,res[v],'site');}			$('#content').innerHTML+='<div class="przerwa"><hr /></div>';
 		for (var v in res){	opisz(v,res[v],'szczecin_studia');}	$('#content').innerHTML+='<div class="przerwa"><hr /></div>';
 	}
 
+	function oblicz_srednia(res){
+		//console.log(res);
+		for (var uczelnia in res){	
+			srednia[uczelnia]=[];
+			for (var data in res[uczelnia]){	
+				for (var faktor in res[uczelnia][data]){
+					if (faktor=='search' || faktor=='site' || faktor=='szczecin_studia' ){
+						var valu = parseInt(res[uczelnia][data][faktor]);
+						var last = srednia[uczelnia][faktor] || 0;
+						var suma = valu + last;
+						srednia[uczelnia][faktor]=suma;
+					}
+				}
+			}	
+		}
+		var wyniki=[];
+		var max=0;
+		for (var uczelnia in srednia){	
+				var wartosc=Math.round((srednia[uczelnia]['search'] / 10) + (srednia[uczelnia]['site'] / 2) + (srednia[uczelnia]['szczecin_studia']));
+				max=Math.max(max,wartosc);
+				//srednia[uczelnia]['faktor'] = wartosc;				
+				wyniki[uczelnia] = wartosc;		
+		}
+		var l=0;
+		for (var uczelnia in wyniki){	
+				var wartosc=Math.round(10000 * wyniki[uczelnia] / max)/100;
+				srednia[uczelnia]['faktor'] = wartosc;				
+				wyniki[uczelnia] = wartosc;		
+				l++;
+		}
+		wyniki.length=l;
+		wyniki=asasort(wyniki);
+		
+		var i=0;
+		var html='<table>';
+			html+='<tr><th>Lp</th><th>Uczelnia</th><th>Faktor</th><th>---</th></tr>';
+		for (var w in wyniki){
+			i++;
+			html+='<tr><td>'+i+'</td><td>'+w+'</td><td>'+formatuj(wyniki[w])+'</td><td>'+linijka(wyniki[w])+'</td></tr>';
+		}
+		html+='</table>';
+		$('#srednia').innerHTML=html;
+	}
+	
+function asasort(arr){
+	var out=[];
+	var ile=arr.length;
+	var j='';
+	var max=0;
+	for (x=0; x<ile; x++){
+		for (i in arr){
+			var war=parseFloat(arr[i]);
+			if (war>max) {max=war;j=i;}
+		}
+		out[j]=max;
+		arr[j]=0;
+		max=0;
+	}
+	return out;
+}	
+	
+function formatuj(nr){
+	var out=nr;
+	out='<b>'+out+'</b>';
+	return out;
+}
+
+function linijka(ile){
+	var ile=Math.ceil(ile);
+	var out='<span class="linijka">';
+	for (var i=0; i<ile; i++) out+='&nbsp;';
+	out+='</span>';
+	return out;
+}	
 	function opisz(uczelnia,obj,pole){
 		//console.log(obj);
 		var i=0;
@@ -123,29 +156,7 @@ document.getElementsByTagName('head')[0].appendChild(script);
 	}
 
 
-       function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ]);
-//console.log(data);
-        var options = {
-          title: 'Company Performance'
-        };
-
-        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-        chart.draw(data, options);
-      }		
-    
-
-
-
-
-
-</script>
+ </script>
 
 </head>
 
@@ -153,15 +164,13 @@ document.getElementsByTagName('head')[0].appendChild(script);
 
 	<div id="menu">
 		<button class="btn"  onClick="window.open('wykres.html','_parent')">Wykres Uczelnie</button> 
-		<!--
-		<button class="btn"  onClick="window.open('wykres-uczelnie.html','_parent')">Wykres Uczelnie</button> 
-		<button class="btn"  onClick="window.open('wykres-dane.html','_parent')">Wykres Dane</button> 
-		-->
+
 		<button class="btn btn-inverse" onClick="seo()">SEO</button> 
 		<button class="btn btn-warning" onClick="koniec()">Koniec</button> 
 	</div>
 
 	<div class="container-fluid">
+		<div class="page" id="srednia"></div >
 		<div class="page" id="content"></div >
 	</div>
 
